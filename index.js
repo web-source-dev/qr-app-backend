@@ -17,12 +17,25 @@ app.use(bodyParser.json())
 // Middleware
 
 app.use(express.json());  // Parse incoming JSON requests
+const allowedOrigins = [
+  'https://qr-app-frontend.vercel.app',
+  'https://my-qr-app-henna.vercel.app',
+];
+
 app.use(cors({
-  origin: 'https://qr-app-frontend.vercel.app' || 'https://my-qr-app-henna.vercel.app', // Exact origin without a trailing slash
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g., mobile apps or Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true, // Required if you use cookies or auth tokens
+  credentials: true, // Allows cookies or auth tokens
 }));
+
 
 app.options('*', cors()); // Handle preflight requests globally
 
