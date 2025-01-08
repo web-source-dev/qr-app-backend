@@ -20,6 +20,7 @@ app.use(express.json());  // Parse incoming JSON requests
 const allowedOrigins = [
   'https://qr-app-frontend.vercel.app',
   'https://my-qr-app-henna.vercel.app',
+  'https://www.stabm.store',
 ];
 
 app.use(cors({
