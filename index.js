@@ -18,7 +18,7 @@ app.use(bodyParser.json())
 
 app.use(express.json());  // Parse incoming JSON requests
 app.use(cors({
-  origin: 'https://qr-app-frontend.vercel.app', // Exact origin without a trailing slash
+  origin: 'https://qr-app-frontend.vercel.app' || 'https://my-qr-app-henna.vercel.app', // Exact origin without a trailing slash
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true, // Required if you use cookies or auth tokens
