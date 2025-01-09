@@ -22,7 +22,17 @@ app.use(express.json());  // Parse incoming JSON requests
 const corsOptions = {
     origin: function (origin, callback) {
         const allowedOrigins = [
-   methods: [
+            'https://qr-app-frontend.vercel.app',
+            'https://www.stabm.store',
+            'https://my-qr-app-henna.vercel.app',
+        ];
+
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);  // Allow the origin
+        } else {
+            callback(new Error('Not allowed by CORS'), false);  // Deny the origin
+        }
+    }, methods: [
     'GET', 
     'POST', 
     'PUT', 
