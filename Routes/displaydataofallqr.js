@@ -57,6 +57,11 @@ router.get('/configuration/:qrId', async (req, res) => {
       if (config.active_password && config.qrPassword) {
         qrPassword = config.qrPassword;
       }
+
+    const userConsent = true;  // Set consent to true for testing
+    if (!userConsent) {
+      return res.status(200).json({ message: "Consent not given, no analytics data collected." });
+    }
       const analyticsData = {
         ...req.analytics,  // Spread the existing analytics data
         qrId: qrId,         // Add qrId to the data
