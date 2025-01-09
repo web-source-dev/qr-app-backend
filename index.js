@@ -45,7 +45,8 @@ const corsOptions = {
         'X-Content-Type-Options',  // For content security
         'X-XSS-Protection',        // Cross-site scripting protection
         'Cache-Control',           // Cache management
-        'Custom-Header',           // Custom headers if necessary
+        'Custom-Header',          // Custom headers if necessary
+        'x-time-on-page'            // Custom headers if necessary
     ], // Allow specific headers
     exposedHeaders: [
         'Content-Length',          // Expose common headers for access
