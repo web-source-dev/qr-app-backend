@@ -10,6 +10,7 @@ const ImagesQr = require('../models/Imagesqr')
 const VideoQr = require('../models/videoqr');
 const MusicQr = require('../models/musicqr');
 const LandingPage = require('../models/landingpage');
+const Analytics = require('../models/Analytics');
 
 // 1. Create Business Data
 
@@ -56,6 +57,15 @@ router.get('/configuration/:qrId', async (req, res) => {
       if (config.active_password && config.qrPassword) {
         qrPassword = config.qrPassword;
       }
+      const analyticsData = {
+        ...req.analytics,  // Spread the existing analytics data
+        qrId: qrId,         // Add qrId to the data
+    };
+    
+    // Create and save the analytics document
+    const analyticsDoc = new Analytics(analyticsData);
+    await analyticsDoc.save();
+    
   
       // Return business data if QR is still active
       return res.json({ config });

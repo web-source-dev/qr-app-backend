@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser')
 const Stripe = require('stripe');
-
+const analyticsMiddleware = require('./middelware/user-analytics')
 require('dotenv').config();
 const path = require('path');
 const stripe = Stripe('process.env.Stripe_Key'); // Get your secret key from the Stripe dashboard
@@ -15,14 +15,10 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));  // Same for url
 
 app.use(bodyParser.json())
 // Middleware
+app.use(analyticsMiddleware);
 
 app.use(express.json());  // Parse incoming JSON requests
-app.use(cors({
-  origin: 'https://qr-app-frontend.vercel.app' || 'https://my-qr-app-henna.vercel.app', // Exact origin without a trailing slash
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true, // Required if you use cookies or auth tokens
-}));
+app.use(cors());
 
 app.options('*', cors()); // Handle preflight requests globally
 
