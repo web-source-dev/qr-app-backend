@@ -19,11 +19,10 @@ app.use(analyticsMiddleware);
 
 app.use(express.json());  // Parse incoming JSON requests
 
-// Define primary and alias origins
+// Define the primary and alias origins
 const primaryOrigin = 'https://www.stabm.store';
 const aliasOrigins = [
     'https://qr-app-frontend.vercel.app',
-    'https://www.stabm.store',
     'https://qr-app-frontend.vercel.app',
 ];
 
@@ -32,7 +31,12 @@ const allowedOrigins = [primaryOrigin, ...aliasOrigins];
 const corsOptions = {
     origin: function (origin, callback) {
         if (allowedOrigins.includes(origin)) {
-            callback(null, true); // Allow the origin
+            // If the request comes from an alias origin, allow CORS but redirect to primary origin
+            if (aliasOrigins.includes(origin)) {
+                callback(null, primaryOrigin); // Redirect to primary origin
+            } else {
+                callback(null, true); // Allow the primary origin
+            }
         } else {
             callback(new Error('Not allowed by CORS'), false); // Deny the origin
         }
@@ -41,7 +45,18 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
 };
 
+// Use CORS middleware with the custom options
 app.use(cors(corsOptions));
+
+// Optionally, if you want to handle the redirection explicitly:
+app.use((req, res, next) => {
+    if (aliasOrigins.includes(req.headers.origin)) {
+        res.redirect(301, primaryOrigin); // Redirect to the primary origin
+    } else {
+        next();
+    }
+});
+
 app.options('*', cors()); // Handle preflight requests globally
 
 const connectDB = async () => {
