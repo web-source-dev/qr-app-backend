@@ -1,23 +1,21 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
 const Stripe = require('stripe');
-const analyticsMiddleware = require('./middelware/user-analytics')
+const analyticsMiddleware = require('./middleware/user-analytics');
 require('dotenv').config();
 const path = require('path');
-const stripe = Stripe('process.env.Stripe_Key'); // Get your secret key from the Stripe dashboard
+const stripe = Stripe(process.env.Stripe_Key); // Get your secret key from the Stripe dashboard
 
 // Initialize app
 const app = express();
 app.use(express.json({ limit: '10mb' }));  // Adjust '10mb' based on your needs
 app.use(express.urlencoded({ limit: '10mb', extended: true }));  // Same for urlencoded data
 
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 // Middleware
 app.use(analyticsMiddleware);
-
-app.use(express.json());  // Parse incoming JSON requests
 
 const corsOptions = {
     origin: function (origin, callback) {
@@ -32,60 +30,49 @@ const corsOptions = {
         } else {
             callback(new Error('Not allowed by CORS'), false);  // Deny the origin
         }
-    }, methods: [
-    'GET', 
-    'POST', 
-    'PUT', 
-    'DELETE', 
-    'PATCH', 
-    'OPTIONS', 
-    'HEAD'
-  ], // Allow all relevant HTTP methods
-  allowedHeaders: [
-    'Content-Type',            // Standard headers
-    'Authorization',           // Common for token-based authentication
-    'X-Requested-With',        // Common for AJAX requests
-    'Accept',                  // For receiving data
-    'Origin',                  // Standard header to identify the source of the request
-    'X-Frame-Options',         // For frame security
-    'X-Content-Type-Options',  // For content security
-    'X-XSS-Protection',        // Cross-site scripting protection
-    'Cache-Control',           // Cache management
-    'x-screen-resolution',     // Screen resolution from frontend
-    'x-color-depth',           // Color depth from frontend
-    'x-time-on-page',          // Time spent on page
-    'x-click-events',          // Click events from frontend
-    'x-connection-type',       // Connection type if needed
-    'x-csrf-token'             // CSRF token if implemented
-  ], // Allow specific headers
-  exposedHeaders: [
-    'Content-Length',          // Expose common headers for access
-    'x-screen-resolution',     // Screen resolution from frontend
-    'x-color-depth',           // Color depth from frontend
-    'x-time-on-page',          // Time spent on page
-    'x-click-events',          // Click events from frontend
-    'x-connection-type',       // Connection type if needed
-    'x-csrf-token'             // CSRF token if implemented
-  ],
-  credentials: true, // Allow credentials (cookies, HTTP authentication) to be sent
-  optionsSuccessStatus: 204, // Success status for OPTIONS requests (necessary for certain browsers)
-  maxAge: 3600, // Cache preflight responses for 1 hour (in seconds)
-};
-
-// Use CORS middleware globally
-app.use(cors(corsOptions));
+    },
+    methods: [
+        'GET', 
+        'POST', 
+        'PUT', 
+        'DELETE', 
+        'PATCH', 
+        'OPTIONS', 
+        'HEAD'
+    ],
+    allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-Requested-With',
+        'Accept',
+        'Origin',
+        'X-Frame-Options',
+        'X-Content-Type-Options',
+        'X-XSS-Protection',
+        'Cache-Control',
+        'x-screen-resolution',
+        'x-color-depth',
+        'x-time-on-page',
+        'x-click-events',
+        'x-connection-type',
+        'x-csrf-token'
+    ],
     exposedHeaders: [
-        'Content-Length',          // Expose common headers for access
-        'X-Custom-Header',         // Example of custom header to expose
+        'Content-Length',
+        'x-screen-resolution',
+        'x-color-depth',
+        'x-time-on-page',
+        'x-click-events',
+        'x-connection-type',
+        'x-csrf-token'
     ],
     credentials: true, // Allow credentials (cookies, HTTP authentication) to be sent
-    optionsSuccessStatus: 204, // Success status for OPTIONS requests (necessary for certain browsers)
-    maxAge: 3600, // Cache preflight responses for 1 hour (in seconds)
+    optionsSuccessStatus: 204,
+    maxAge: 3600, // Cache preflight responses for 1 hour
 };
 
 // Use CORS middleware globally
 app.use(cors(corsOptions));
-
 
 app.options('*', cors()); // Handle preflight requests globally
 
@@ -121,14 +108,14 @@ app.use('/qr', qrapihandle);
 app.use('/qr/payment', stripeRoutes);
 app.use('/dyn-qr', dynqrhandler);
 app.use('/diplay/qr/data', displayDataofQr);
-app.use('/qr/social',socialProfile );
+app.use('/qr/social', socialProfile);
 app.use('/global-setup', globalDatahandle);
 app.use('/local-setup', localDatahandle);
 
-
-app.get('/',(req, res) => {
+app.get('/', (req, res) => {
   res.send('Welcome to the QR Code API!');
-})
+});
+
 // Set up port
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
