@@ -18,8 +18,25 @@ app.use(bodyParser.json())
 app.use(analyticsMiddleware);
 
 app.use(express.json());  // Parse incoming JSON requests
-app.use(cors());
+const allowedOrigins = [
+    'https://qr-app-frontend.vercel.app',
+    'https://www.stabm.store',
+    'https://qr-app-frontend.vercel.app',
+];
 
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true); // Allow the origin
+        } else {
+            callback(new Error('Not allowed by CORS'), false); // Deny the origin
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+};
+
+app.use(cors(corsOptions));
 app.options('*', cors()); // Handle preflight requests globally
 
 const connectDB = async () => {
