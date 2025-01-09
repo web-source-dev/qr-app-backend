@@ -18,11 +18,16 @@ app.use(bodyParser.json())
 app.use(analyticsMiddleware);
 
 app.use(express.json());  // Parse incoming JSON requests
-const allowedOrigins = [
+
+// Define primary and alias origins
+const primaryOrigin = 'https://www.stabm.store';
+const aliasOrigins = [
     'https://qr-app-frontend.vercel.app',
     'https://www.stabm.store',
     'https://qr-app-frontend.vercel.app',
 ];
+
+const allowedOrigins = [primaryOrigin, ...aliasOrigins];
 
 const corsOptions = {
     origin: function (origin, callback) {
