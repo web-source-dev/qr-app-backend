@@ -43,7 +43,7 @@ const analyticsMiddleware = async (req, res, next) => {
             // Behavioral Data (if collected on frontend and sent to backend)
             sessionId: req.cookies ? req.cookies.sessionId : 'Unknown', // Requires cookie-parser middleware
             userId: req.user ? req.user.id : 'Guest', // Assuming JWT or user session is decoded in `req.user`
-            timeOnPage: req.headers['x-time-on-page'] || 'Unknown', // Duration (in seconds), sent from frontend
+            timeOnPage: req.headers['x-time-on-page'], // Duration (in seconds), sent from frontend
             clickEvents: req.headers['x-click-events'] || [], // Array of events sent from frontend
 
             // Network Data
