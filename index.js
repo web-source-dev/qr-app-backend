@@ -1,77 +1,37 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const bodyParser = require('body-parser');
+const bodyParser = require('body-parser')
 const Stripe = require('stripe');
-const analyticsMiddleware = require('./middleware/user-analytics');
+const analyticsMiddleware = require('./middelware/user-analytics')
 require('dotenv').config();
 const path = require('path');
-const stripe = Stripe(process.env.Stripe_Key); // Get your secret key from the Stripe dashboard
+const stripe = Stripe('process.env.Stripe_Key'); // Get your secret key from the Stripe dashboard
 
 // Initialize app
 const app = express();
 app.use(express.json({ limit: '10mb' }));  // Adjust '10mb' based on your needs
 app.use(express.urlencoded({ limit: '10mb', extended: true }));  // Same for urlencoded data
 
-app.use(bodyParser.json());
+app.use(bodyParser.json())
 // Middleware
 app.use(analyticsMiddleware);
 
+app.use(express.json());  // Parse incoming JSON requests
+
+// const allowedOrigins = [
+//     'https://qr-app-frontend.vercel.app',
+//     'https://www.stabm.store',
+//     'https://my-qr-app-henna.vercel.app',
+// ];
 const corsOptions = {
-    origin: function (origin, callback) {
-        const allowedOrigins = [
-            'https://qr-app-frontend.vercel.app',
-            'https://www.stabm.store',
-            'https://my-qr-app-henna.vercel.app',
-        ];
-
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);  // Allow the origin
-        } else {
-            callback(new Error('Not allowed by CORS'), false);  // Deny the origin
-        }
-    },
-    methods: [
-        'GET', 
-        'POST', 
-        'PUT', 
-        'DELETE', 
-        'PATCH', 
-        'OPTIONS', 
-        'HEAD'
-    ],
-    allowedHeaders: [
-        'Content-Type',
-        'Authorization',
-        'X-Requested-With',
-        'Accept',
-        'Origin',
-        'X-Frame-Options',
-        'X-Content-Type-Options',
-        'X-XSS-Protection',
-        'Cache-Control',
-        'x-screen-resolution',
-        'x-color-depth',
-        'x-time-on-page',
-        'x-click-events',
-        'x-connection-type',
-        'x-csrf-token'
-    ],
-    exposedHeaders: [
-        'Content-Length',
-        'x-screen-resolution',
-        'x-color-depth',
-        'x-time-on-page',
-        'x-click-events',
-        'x-connection-type',
-        'x-csrf-token'
-    ],
-    credentials: true, // Allow credentials (cookies, HTTP authentication) to be sent
-    optionsSuccessStatus: 204,
-    maxAge: 3600, // Cache preflight responses for 1 hour
+    origin: '*', // Allow all origins
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow all HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'], // Allow common headers
+    credentials: true, // If you need to include credentials (cookies, HTTP authentication) in requests
+    preflightContinue: false, // Option to continue with preflight request handling by default
+    optionsSuccessStatus: 204, // Status code for successful OPTIONS requests
 };
-
-// Use CORS middleware globally
 app.use(cors(corsOptions));
 
 app.options('*', cors()); // Handle preflight requests globally
@@ -108,14 +68,14 @@ app.use('/qr', qrapihandle);
 app.use('/qr/payment', stripeRoutes);
 app.use('/dyn-qr', dynqrhandler);
 app.use('/diplay/qr/data', displayDataofQr);
-app.use('/qr/social', socialProfile);
+app.use('/qr/social',socialProfile );
 app.use('/global-setup', globalDatahandle);
 app.use('/local-setup', localDatahandle);
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the QR Code API!');
-});
 
+app.get('/',(req, res) => {
+  res.send('Welcome to the QR Code API!');
+})
 // Set up port
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
