@@ -19,22 +19,16 @@ app.use(analyticsMiddleware);
 
 app.use(express.json());  // Parse incoming JSON requests
 
-const allowedOrigins = [
-    'https://qr-app-frontend.vercel.app',
-    'https://www.stabm.store',
-    'https://my-qr-app-henna.vercel.app',
-];
 const corsOptions = {
     origin: function (origin, callback) {
-        // Define your allowed origins explicitly or dynamically (regex match, or check against a list)
         const allowedOrigins = [
-             'https://qr-app-frontend.vercel.app',
-    'https://www.stabm.store',
-    'https://my-qr-app-henna.vercel.app',
+            'https://qr-app-frontend.vercel.app',
+            'https://www.stabm.store',
+            'https://my-qr-app-henna.vercel.app',
         ];
 
         // If no origin (such as when called from a non-browser environment), allow it
-        if (!origin || allowedOrigins.some((allowedOrigin) => origin && origin.match(allowedOrigin))) {
+        if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);  // Allow the origin
         } else {
             callback(new Error('Not allowed by CORS'), false);  // Deny the origin
@@ -58,25 +52,13 @@ const corsOptions = {
         'X-Custom-Header',         // Example of custom header to expose
     ],
     credentials: true, // Allow credentials (cookies, HTTP authentication) to be sent
-    preflightContinue: false, // Preflight request should be handled automatically by the server
     optionsSuccessStatus: 204, // Success status for OPTIONS requests (necessary for certain browsers)
     maxAge: 3600, // Cache preflight responses for 1 hour (in seconds)
-    allowedRequestHeaders: [
-        'Authorization',           // Allow for specific headers like Authorization
-        'Content-Type',            // Allow content type header
-        'X-Requested-With',        // Common for AJAX requests
-    ], // Custom headers allowed in requests
-    allowedMethods: [
-        'GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD', 'TRACE'  // Explicitly allowed HTTP methods
-    ],
-    allowedOrigins: [
-        /.*\.example\.com$/, // Use regex to allow dynamic origins (e.g., subdomains)
-        'https://main-domain.com',  // Fixed allowed domain
-    ]
 };
 
 // Use CORS middleware globally
 app.use(cors(corsOptions));
+
 
 app.options('*', cors()); // Handle preflight requests globally
 
