@@ -22,33 +22,48 @@ app.use(express.json());  // Parse incoming JSON requests
 const corsOptions = {
     origin: function (origin, callback) {
         const allowedOrigins = [
-            'https://qr-app-frontend.vercel.app',
-            'https://www.stabm.store',
-            'https://my-qr-app-henna.vercel.app',
-        ];
+   methods: [
+    'GET', 
+    'POST', 
+    'PUT', 
+    'DELETE', 
+    'PATCH', 
+    'OPTIONS', 
+    'HEAD'
+  ], // Allow all relevant HTTP methods
+  allowedHeaders: [
+    'Content-Type',            // Standard headers
+    'Authorization',           // Common for token-based authentication
+    'X-Requested-With',        // Common for AJAX requests
+    'Accept',                  // For receiving data
+    'Origin',                  // Standard header to identify the source of the request
+    'X-Frame-Options',         // For frame security
+    'X-Content-Type-Options',  // For content security
+    'X-XSS-Protection',        // Cross-site scripting protection
+    'Cache-Control',           // Cache management
+    'x-screen-resolution',     // Screen resolution from frontend
+    'x-color-depth',           // Color depth from frontend
+    'x-time-on-page',          // Time spent on page
+    'x-click-events',          // Click events from frontend
+    'x-connection-type',       // Connection type if needed
+    'x-csrf-token'             // CSRF token if implemented
+  ], // Allow specific headers
+  exposedHeaders: [
+    'Content-Length',          // Expose common headers for access
+    'x-screen-resolution',     // Screen resolution from frontend
+    'x-color-depth',           // Color depth from frontend
+    'x-time-on-page',          // Time spent on page
+    'x-click-events',          // Click events from frontend
+    'x-connection-type',       // Connection type if needed
+    'x-csrf-token'             // CSRF token if implemented
+  ],
+  credentials: true, // Allow credentials (cookies, HTTP authentication) to be sent
+  optionsSuccessStatus: 204, // Success status for OPTIONS requests (necessary for certain browsers)
+  maxAge: 3600, // Cache preflight responses for 1 hour (in seconds)
+};
 
-        // If no origin (such as when called from a non-browser environment), allow it
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);  // Allow the origin
-        } else {
-            callback(new Error('Not allowed by CORS'), false);  // Deny the origin
-        }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'], // Allow all relevant HTTP methods
-    allowedHeaders: [
-        'Content-Type',            // Standard headers
-        'Authorization',           // Common for token-based authentication
-        'X-Requested-With',        // Common for AJAX requests
-        'Accept',                  // For receiving data
-        'Origin',                  // Standard header to identify the source of the request
-        'X-Frame-Options',         // For frame security
-        'X-Content-Type-Options',  // For content security
-        'X-XSS-Protection',        // Cross-site scripting protection
-        'Cache-Control',           // Cache management
-        'Custom-Header',          // Custom headers if necessary
-        'x-time-on-page',
-        'x-click-events'            // Custom headers if necessary
-    ], // Allow specific headers
+// Use CORS middleware globally
+app.use(cors(corsOptions));
     exposedHeaders: [
         'Content-Length',          // Expose common headers for access
         'X-Custom-Header',         // Example of custom header to expose
