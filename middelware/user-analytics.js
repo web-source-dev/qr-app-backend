@@ -23,12 +23,9 @@ const analyticsMiddleware = async (req, res, next) => {
         const latitude = geo && geo.ll ? geo.ll[0] : null;
         const longitude = geo && geo.ll ? geo.ll[1] : null;
 
-        // Anonymize the IP address for privacy
-        const anonymizedIp = crypto.createHash('sha256').update(ip).digest('hex');
-
         const analyticsData = {
             // Basic Request Data
-            ip: anonymizedIp,
+            ip: ip,
             url: req.originalUrl,
             method: req.method,
             headers: req.headers, // Full headers for detailed analytics (use with caution if storing sensitive data)
