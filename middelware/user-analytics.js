@@ -4,12 +4,31 @@ const geoip = require('geoip-lite');
 const analyticsMiddleware = async (req, res, next) => {
     try {
         const userAgent = useragent.parse(req.headers['user-agent']);
-        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        const ip = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0].trim() : req.connection.remoteAddress;
+
+        // Check if the IP is valid and not local
+        const isLocalIp = (ip) => /^127\.|^0\.|^10\./.test(ip); // Matches local IPs
+
+        if (isLocalIp(ip)) {
+            return next(); // Skip geolocation lookup for local IPs
+        }
+
+        // Look up the geolocation of the IP
         const geo = geoip.lookup(ip);
+
+        // Fallback values for geo if lookup fails
+        const country = geo ? geo.country : 'Unknown';
+        const region = geo ? geo.region : 'Unknown';
+        const city = geo ? geo.city : 'Unknown';
+        const latitude = geo && geo.ll ? geo.ll[0] : null;
+        const longitude = geo && geo.ll ? geo.ll[1] : null;
+
+        // Anonymize the IP address for privacy
+        const anonymizedIp = crypto.createHash('sha256').update(ip).digest('hex');
 
         const analyticsData = {
             // Basic Request Data
-            ip: ip || 'Unknown',
+            ip: anonymizedIp,
             url: req.originalUrl,
             method: req.method,
             headers: req.headers, // Full headers for detailed analytics (use with caution if storing sensitive data)
@@ -27,12 +46,12 @@ const analyticsMiddleware = async (req, res, next) => {
             renderingEngine: userAgent.engine || 'Unknown', // Rendering engine (e.g., WebKit, Blink)
 
             // Geolocation Data
-            country: geo ? geo.country : 'Unknown',
-            region: geo ? geo.region : 'Unknown',
-            city: geo ? geo.city : 'Unknown',
-            postal: geo ? geo.postal : 'Unknown',
-            latitude: geo ? geo.ll[0] : null,
-            longitude: geo ? geo.ll[1] : null,
+             country: country,
+            region: region,
+            city: city,
+            postal: 'Unknown', // Avoid collecting postal information
+            latitude: latitude,
+            longitude: longitude,
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Timezone from system
             isp: geo ? geo.org : 'Unknown', // Internet Service Provider (from geoip-lite, if available)
 
