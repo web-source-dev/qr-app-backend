@@ -16,6 +16,25 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));  // Same for url
 app.use(bodyParser.json()); // Parse incoming JSON requests
 
 // Middleware
+app.use(analyticsMiddleware);
+
+app.use(express.json());  // Parse incoming JSON requests
+
+// const allowedOrigins = [
+//     'https://qr-app-frontend.vercel.app',
+//     'https://www.stabm.store',
+//     'https://my-qr-app-henna.vercel.app',
+// ];
+const corsOptions = {
+    origin: '*', // Allow all origins
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow all HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'x-screen-resolution', 'x-color-depth', 'x-time-on-page', 'x-click-events'], // Allow common headers
+    credentials: true, // If you need to include credentials (cookies, HTTP authentication) in requests
+    preflightContinue: false, // Option to continue with preflight request handling by default
+    optionsSuccessStatus: 204, // Status code for successful OPTIONS requests
+};
+app.use(cors(corsOptions));
+
 app.use(cors());
 app.options('*', cors()); // Handle preflight requests globally
 
