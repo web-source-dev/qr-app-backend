@@ -57,16 +57,21 @@ router.get('/configuration/:qrId', async (req, res) => {
       if (config.active_password && config.qrPassword) {
         qrPassword = config.qrPassword;
       }
-      const analyticsData = {
-        ...req.analytics,  // Spread the existing analytics data
-        qrId: qrId,         // Add qrId to the data
-    };
-    
-    // Create and save the analytics document
-    const analyticsDoc = new Analytics(analyticsData);
-    await analyticsDoc.save();
-    
   
+
+      const userConsent = true;  // Set consent to true for testing
+      if (!userConsent) {
+        return res.status(200).json({ message: "Consent not given, no analytics data collected." });
+      }
+        const analyticsData = {
+          ...req.analytics,  // Spread the existing analytics data
+          qrId: qrId,         // Add qrId to the data
+      };
+      
+      // Create and save the analytics document
+      const analyticsDoc = new Analytics(analyticsData);
+      await analyticsDoc.save();
+      
       // Return business data if QR is still active
       return res.json({ config });
   

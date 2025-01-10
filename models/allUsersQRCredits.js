@@ -15,6 +15,10 @@ const AvailableCreditsSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    latestPurchase: {
+        type: Number,
+        default: 0
+    },
     remainingCredits: {
         type: Number,
         default: 0

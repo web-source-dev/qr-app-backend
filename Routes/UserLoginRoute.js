@@ -10,10 +10,6 @@ const axios = require('axios');
 require('dotenv').config();
 
 
-const KIT_API_KEY = 'kit_e07e47a5345aa3a4764e38fac648dabc';
-const KIT_BASE_URL = 'https://api.kit.com/v4';
-
-
 // POST route for user signup
 router.post('/signup', async (req, res) => {
   const { user_name, user_email, user_password } = req.body;
@@ -86,9 +82,7 @@ router.post('/login', async (req, res) => {
     res.status(200).json({
       message: 'Login successful!',
       token,
-      user_name: user.user_name,
-      user_email: user.user_email,
-      user_id: user._id,
+      user,
     });
   } catch (err) {
     console.error(err);
@@ -168,68 +162,69 @@ router.post('/theme', async (req, res) => {
   }
 });
 
-// Function to fetch subscribers based on a tag (e.g., 'DONORS')
-const fetchSubscribers = async (tag) => {
+router.get('/profile/:userId', async (req, res) => {
   try {
-      const response = await axios.get(`${KIT_BASE_URL}`/subscribers, {
-          headers: {
-              'Authorization': Bearer `${KIT_API_KEY}`,
-          },
-          params: { tags: tag }
-      });
-      return response.data.data || [];
-  } catch (error) {
-      console.error('Error fetching subscribers:', error);
-      return [];
+    const { userId } = req.params;
+    console.log('userId',userId);
+    const data = await User.findById(userId);
+    if (!data) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const senddata ={
+      user_fullname:data.user_fullname,
+      user_phone:data.user_phone,
+      user_city:data.user_city,
+      user_state:data.user_state,
+      user_zip:data.user_zip,
+      user_country:data.user_country,
+      user_email:data.user_email,
+      user_name:data.user_name,
+      user_id:data._id
+
+    }
+    res.status(200).json(senddata);
+  } 
+  catch (error) {
+    console.error('Error fetching theme:', error);
+    res.status(500).json({ message: 'Error fetching theme' });
   }
-};
+})
 
-// Function to send a broadcast email
-const sendEmailBroadcast = async (subscribers, subject, body) => {
+router.put('/profile', async (req, res) => {
   try {
-      const broadcastData = {
-          broadcast: {
-              from: {
-                  name: 'Your Organization',
-                  email: 'muhammadnouman72321@gmail.com',
-              },
-              to: subscribers.map(subscriber => subscriber.email),
-              subject: subject,
-              body: body,
-              tags: ['DONORS'],
-          }
-      };
+    const { user_id } = req.body; // Assuming you have the user ID from the authentication middleware (e.g., from JWT)
 
-      const response = await axios.post(`${KIT_BASE_URL}`/broadcasts, broadcastData, {
-          headers: {
-              'Authorization': Bearer `${KIT_API_KEY}`,
-          }
-      });
-      return response.data;
-  } catch (error) {
-      console.error('Error sending broadcast email:', error);
-      return null;
-  }
-};
+    // Get the fields to update from the request body
+    console.log('body',req.body);
+    const updateFields = {};
 
-// Endpoint to trigger email broadcast
-router.post('/send-broadcast', async (req, res) => {
-  const { tag, subject, body } = req.body;
-  try {
-      const subscribers = await fetchSubscribers(tag);
-      if (subscribers.length === 0) {
-          return res.status(404).json({ message: 'No subscribers found for the provided tag' });
-      }
-      const result = await sendEmailBroadcast(subscribers, subject, body);
-      if (result) {
-          res.status(200).json({ message: 'Broadcast sent successfully', data: result });
-      } else {
-          res.status(500).json({ message: 'Failed to send broadcast' });
-      }
+    // Only update fields that are provided in the request
+    if (req.body.user_fullname) updateFields.user_fullname = req.body.user_fullname;
+    if (req.body.user_phone) updateFields.user_phone = req.body.user_phone;
+    if (req.body.user_city) updateFields.user_city = req.body.user_city;
+    if (req.body.user_state) updateFields.user_state = req.body.user_state;
+    if (req.body.user_zip) updateFields.user_zip = req.body.user_zip;
+    if (req.body.user_country) updateFields.user_country = req.body.user_country;
+
+    // Find user by ID and update only the fields provided
+    const updatedUser = await User.findByIdAndUpdate(
+      {_id:user_id}, // User's unique ID (e.g., extracted from JWT or session)
+      { $set: updateFields }, // Only update the specified fields
+      { new: true, runValidators: true } // Returns the updated document and runs validators
+    );
+
+    // If no user is found with the provided ID
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    console.log('Updated user:', updatedUser);
+    // Respond with the updated user data
+    res.status(200).json(updatedUser);
   } catch (error) {
-      res.status(500).json({ message: 'Server error', error: error.message });
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
-
 
 module.exports = router;
